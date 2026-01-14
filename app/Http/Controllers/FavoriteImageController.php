@@ -19,11 +19,20 @@ class FavoriteImageController extends Controller
    public function store(Request $request)
 {
     $request->validate([
-        'title' => 'required|max:255',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
         'image' => 'required|image|max:2048',
     ]);
 
-    $path = $request->file('image')->store('favorites', 'public');
+    $file = $request->file('image');
+
+$filename = time().'_'.$file->getClientOriginalName();
+
+$file->move(public_path('storage/favorites'), $filename);
+
+$path = 'favorites/'.$filename;
+
+
 
     $image = FavoriteImage::create([
         'title' => $request->title,
@@ -31,8 +40,9 @@ class FavoriteImageController extends Controller
         'image_path' => $path,
     ]);
 
-    return response()->json($image);
+    return response()->json($image, 201);
 }
+
 
 
     // DELETE
